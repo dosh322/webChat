@@ -1,22 +1,26 @@
+import React, { useReducer, useEffect } from 'react';
+import { RegistrationForm } from './components';
+import reducer from './reducer';
+import socket from './socket';
+
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	const [state, dispatch] = useReducer(reducer, { joined: false, roomId: null, username: null });
+	const onLogin = (loginData) => {
+		dispatch({
+			type: 'JOINED',
+			payload: loginData,
+		});
+		socket.emit('ROOM:JOIN', loginData);
+	};
+	console.log(state);
+
+	useEffect(() => {
+		socket.on('ROOM:JOINED', (users) => {
+			console.log(users);
+		});
+	}, []);
+
+	return <div className="wrapper">{!state.joined && <RegistrationForm onLogin={onLogin} />}</div>;
 }
 
 export default App;
