@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 /* eslint-disable react/prop-types */
-export const Chat = ({ users, onSendMessage, messages }) => {
+export const Chat = ({ users, onSendMessage, messages, currentUser }) => {
 	const [messageValue, setMessageValue] = useState('');
+	const messagesRef = useRef();
 
 	const onSend = () => {
 		onSendMessage(messageValue);
 		setMessageValue('');
 	};
+
+	useEffect(() => {
+		messagesRef.current.scrollTo(0, 99999);
+	}, [messages]);
 
 	return (
 		<div className="chat">
@@ -15,15 +20,22 @@ export const Chat = ({ users, onSendMessage, messages }) => {
 				<b>Users: ({users.length})</b>
 				<ul>
 					{users.map(({ id, name }) => (
-						<li key={id}>{name}</li>
+						<li key={id}>
+							{name} {name === currentUser && '(You)'}
+						</li>
 					))}
 				</ul>
 			</div>
 			<div className="chat-messages">
-				<div className="messages">
+				<div className="messages" ref={messagesRef}>
 					{messages.map(({ message, username }) => (
-						<div className="message">
-							<p>{message}</p>
+						<div
+							className="message"
+							style={{
+								...(username === currentUser && { alignSelf: 'flex-end' }),
+							}}
+						>
+							<p style={{ ...(username === currentUser && { backgroundColor: 'grey' }) }}>{message}</p>
 							<div>
 								<span>{username}</span>
 							</div>
@@ -38,7 +50,7 @@ export const Chat = ({ users, onSendMessage, messages }) => {
 						rows="3"
 					/>
 					<button onClick={onSend} type="button" className="btn btn-primary">
-						Отправить
+						Send
 					</button>
 				</form>
 			</div>

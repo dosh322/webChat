@@ -53,6 +53,8 @@ code {
 }
 
 .messages {
+	display: flex;
+	flex-direction: column;
 	flex: 1;
 	height: calc(100% - 155px);
 	overflow: auto;

@@ -42,7 +42,6 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('ROOM:MESSAGE', ({ roomId, username, message }) => {
-		console.log('get message');
 		const messages = rooms.get(roomId).get('messages');
 		messages.push({ username, message });
 		io.in(roomId).emit('ROOM:MESSAGES', messages);

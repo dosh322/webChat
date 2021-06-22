@@ -49,7 +49,12 @@ function App() {
 	return (
 		<div className="wrapper">
 			{state.joined ? (
-				<Chat users={state.users} messages={state.messages} onSendMessage={onSendMessage} />
+				<Chat
+					users={state.users}
+					messages={state.messages}
+					currentUser={state.username}
+					onSendMessage={onSendMessage}
+				/>
 			) : (
 				<RegistrationForm onLogin={onLogin} />
 			)}
