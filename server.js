@@ -36,10 +36,27 @@ io.on('connection', (socket) => {
 	socket.on('ROOM:JOIN', ({ roomId, username }) => {
 		socket.join(roomId);
 		rooms.get(roomId).get('users').set(socket.id, username);
-		const users = [...rooms.get(roomId).get('users').values()];
-		io.in(roomId).emit('ROOM:JOINED', users);
+		const users = [...rooms.get(roomId).get('users')].map((user) => ({ id: user[0], name: user[1] }));
+		const messages = rooms.get(roomId).get('messages');
+		io.in(roomId).emit('ROOM:INFO', { users, messages });
 	});
-	// console.log('socket connected', socket.id);
+
+	socket.on('ROOM:MESSAGE', ({ roomId, username, message }) => {
+		console.log('get message');
+		const messages = rooms.get(roomId).get('messages');
+		messages.push({ username, message });
+		io.in(roomId).emit('ROOM:MESSAGES', messages);
+	});
+
+	socket.on('disconnect', () => {
+		rooms.forEach((room, roomId) => {
+			if (room.get('users').delete(socket.id)) {
+				const users = [...rooms.get(roomId).get('users')].map((user) => ({ id: user[0], name: user[1] }));
+				const messages = rooms.get(roomId).get('messages');
+				io.in(roomId).emit('ROOM:INFO', { users, messages });
+			}
+		});
+	});
 });
 
 server.listen(9999, (err) => {
